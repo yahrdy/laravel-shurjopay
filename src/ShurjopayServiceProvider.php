@@ -18,6 +18,7 @@ class ShurjopayServiceProvider extends PackageServiceProvider
         $package
             ->name('shurjopay')
             ->hasConfigFile()
+            ->hasRoute('api')
             ->hasViews()
             ->hasMigration('create_shurjopay_table')
             ->hasCommand(ShurjopayCommand::class);
