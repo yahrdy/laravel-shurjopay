@@ -2,6 +2,8 @@
 
 namespace Yahrdy\Shurjopay;
 
+use GuzzleHttp\Promise\PromiseInterface;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Request;
 
@@ -42,26 +44,42 @@ class Shurjopay
         $this->responseHandler = $responseHandler;
     }
 
-    public function initiatePayment()
+    public function initiatePayment(): Response
     {
         $tokenResponse = $this->getToken();
         $this->token = $tokenResponse['token'];
         $this->storeId = $tokenResponse['store_id'];
 
-        $checkoutResponse = $this->checkout();
-        return $checkoutResponse;
+        return $this->checkout();
     }
 
-    private function getToken()
+    public function verifyPayment(): PromiseInterface|Response
     {
-        $response = Http::post($this->serverUrl . '/api/get_token', [
+        $tokenResponse = $this->getToken();
+        $this->token = $tokenResponse['token'];
+        $this->storeId = $tokenResponse['store_id'];
+
+        return $this->verify();
+    }
+
+    public function checkPayment(): PromiseInterface|Response
+    {
+        $tokenResponse = $this->getToken();
+        $this->token = $tokenResponse['token'];
+        $this->storeId = $tokenResponse['store_id'];
+
+        return $this->check();
+    }
+
+    private function getToken(): Response
+    {
+        return Http::post($this->serverUrl . '/api/get_token', [
             'username' => $this->merchantUsername,
             'password' => $this->merchantPassword,
         ]);
-        return $response;
     }
 
-    private function checkout()
+    private function checkout(): Response
     {
         $response = Http::post($this->serverUrl . '/api/secret-pay', [
             'prefix' => 'sp',
@@ -80,5 +98,19 @@ class Shurjopay
             'currency' => 'BDT',
         ]);
         return $response;
+    }
+
+    public function verify(): PromiseInterface|Response
+    {
+        return Http::withToken($this->token)->post($this->serverUrl . '/api/verification', [
+            'order_id' => 'spay612b73a935ab1',
+        ]);
+    }
+
+    public function check(): PromiseInterface|Response
+    {
+        return Http::withToken($this->token)->withToken($this->token)->post($this->serverUrl . '/api/payment-status', [
+            'order_id' => 'spay612b73a935ab1',
+        ]);
     }
 }

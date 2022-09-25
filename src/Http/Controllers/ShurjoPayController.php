@@ -17,14 +17,6 @@ class ShurjoPayController extends Controller
         return $client->initiatePayment();
     }
 
-    /**
-     * Handle a response coming from ShurjoPay server
-     * after a successful or failed transaction.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \Exception|GuzzleException
-     */
     public function response(Request $request)
     {
         $data = Shurjopay::decryptResponse($request->spdata);
@@ -55,5 +47,10 @@ class ShurjoPayController extends Controller
             "&sp_code_des={$resCodeDescription}&sp_payment_option={$paymentOption}";
 
         return redirect($redirectUrl);
+    }
+
+    public function verifyPayment(){
+        $client = new Shurjopay(500, route('shurjopay.response'));
+        return $client->verifyPayment();
     }
 }
