@@ -1,17 +1,17 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "yahrdy/shurjopay",
+    "description": "ShurjoPay payment gateway for laravel",
     "keywords": [
-        ":vendor_name",
+        "yahrdy",
         "laravel",
-        ":package_slug"
+        "shurjopay"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/yahrdy/shurjopay",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Yeasir Arafat",
+            "email": "yeasirarafat321@gmail.com",
             "role": "Developer"
         }
     ],
@@ -35,13 +35,13 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories"
+            "Yahrdy\\Shurjopay\\": "src",
+            "Yahrdy\\Shurjopay\\Database\\Factories\\": "database/factories"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests"
+            "Yahrdy\\Shurjopay\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -56,10 +56,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "Yahrdy\\Shurjopay\\ShurjopayServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "Shurjopay": "Yahrdy\\Shurjopay\\Facades\\Shurjopay"
             }
         }
     },
