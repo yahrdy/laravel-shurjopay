@@ -9,11 +9,10 @@ use Yahrdy\Shurjopay\Shurjopay;
 
 class ShurjoPayController extends Controller
 {
-    /**
-     */
     public function initiatePayment()
     {
         $client = new Shurjopay(500, route('shurjopay.response'));
+
         return $client->initiatePayment();
     }
 
@@ -21,8 +20,9 @@ class ShurjoPayController extends Controller
      * Handle a response coming from ShurjoPay server
      * after a successful or failed transaction.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse
+     *
      * @throws \Exception|GuzzleException
      */
     public function response(Request $request)
@@ -40,18 +40,18 @@ class ShurjoPayController extends Controller
         switch ($resCode) {
             case '000':
                 $status = 'Success';
-                $res['message'] = "Transaction attempt successful";
+                $res['message'] = 'Transaction attempt successful';
                 break;
             default:
                 $status = 'Failed';
-                $res['message'] = "Transaction attempt failed";
+                $res['message'] = 'Transaction attempt failed';
                 break;
         }
 
-        $redirectUrl = $request->get('success_url') .
-            "?status={$status}&msg={$res['message']}" .
-            "&tx_id={$txnId}&bank_tx_id={$bankTxnId}" .
-            "&amount={$amount}&bank_status={$bankStatus}&sp_code={$resCode}" .
+        $redirectUrl = $request->get('success_url').
+            "?status={$status}&msg={$res['message']}".
+            "&tx_id={$txnId}&bank_tx_id={$bankTxnId}".
+            "&amount={$amount}&bank_status={$bankStatus}&sp_code={$resCode}".
             "&sp_code_des={$resCodeDescription}&sp_payment_option={$paymentOption}";
 
         return redirect($redirectUrl);
