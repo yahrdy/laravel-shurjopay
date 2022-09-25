@@ -10,29 +10,37 @@ use Illuminate\Support\Facades\Request;
 class Shurjopay
 {
     protected $amount;
+
     protected $successUrl;
+
     protected $serverUrl;
+
     protected $merchantUsername;
+
     protected $merchantPassword;
+
     protected $merchantKeyPrefix;
+
     protected $clientIp;
+
     protected $useCurl;
+
     protected $responseHandler;
+
     private $token;
+
     private $storeId;
 
-
     public function __construct(
-        float  $amount,
+        float $amount,
         string $successUrl,
         string $serverUrl = null,
         string $merchantUsername = null,
         string $merchantPassword = null,
         string $merchantKeyPrefix = null,
-        bool   $useCurl = false,
+        bool $useCurl = false,
         string $responseHandler = null
-    )
-    {
+    ) {
         $this->amount = $amount;
         $this->successUrl = $successUrl;
         $this->serverUrl = $serverUrl ?? config('shurjopay.server_url');
@@ -68,20 +76,23 @@ class Shurjopay
         $this->token = $tokenResponse['token'];
         $this->storeId = $tokenResponse['store_id'];
 
+
         return $this->check();
     }
 
     private function getToken(): Response
     {
-        return Http::post($this->serverUrl . '/api/get_token', [
+        return Http::post($this->serverUrl.'/api/get_token', [
             'username' => $this->merchantUsername,
             'password' => $this->merchantPassword,
         ]);
+
+        return $response;
     }
 
     private function checkout(): Response
     {
-        $response = Http::post($this->serverUrl . '/api/secret-pay', [
+        $response = Http::post($this->serverUrl.'/api/secret-pay', [
             'prefix' => 'sp',
             'token' => $this->token,
             'amount' => $this->amount,
@@ -97,6 +108,7 @@ class Shurjopay
             'customer_post_code' => '1200',
             'currency' => 'BDT',
         ]);
+
         return $response;
     }
 
