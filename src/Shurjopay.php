@@ -76,7 +76,6 @@ class Shurjopay
         $this->token = $tokenResponse['token'];
         $this->storeId = $tokenResponse['store_id'];
 
-
         return $this->check();
     }
 
@@ -114,14 +113,14 @@ class Shurjopay
 
     public function verify(): PromiseInterface|Response
     {
-        return Http::withToken($this->token)->post($this->serverUrl . '/api/verification', [
+        return Http::withToken($this->token)->post($this->serverUrl.'/api/verification', [
             'order_id' => 'spay612b73a935ab1',
         ]);
     }
 
     public function check(): PromiseInterface|Response
     {
-        return Http::withToken($this->token)->withToken($this->token)->post($this->serverUrl . '/api/payment-status', [
+        return Http::withToken($this->token)->withToken($this->token)->post($this->serverUrl.'/api/payment-status', [
             'order_id' => 'spay612b73a935ab1',
         ]);
     }

@@ -57,8 +57,10 @@ class ShurjoPayController extends Controller
         return redirect($redirectUrl);
     }
 
-    public function verifyPayment(){
+    public function verifyPayment()
+    {
         $client = new Shurjopay(500, route('shurjopay.response'));
+
         return $client->verifyPayment();
     }
 }
