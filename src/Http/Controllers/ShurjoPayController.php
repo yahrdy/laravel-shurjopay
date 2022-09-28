@@ -20,9 +20,10 @@ class ShurjoPayController extends Controller
         ];
         $validator = Validator::make($request->all(), $ruels);
         if ($validator->fails()) {
-            return response()->json([$validator->errors(),], 422);
+            return response()->json([$validator->errors()], 422);
         }
         $client = new Shurjopay();
+
         return $client
             ->checkout($request->amount, $request->order_id, $request->name, $request->address, $request->phone, $request->post_code, $request->value1, $request->value2, $request->value3, $request->value4)
             ->json();
@@ -34,7 +35,7 @@ class ShurjoPayController extends Controller
         $rules = ['id' => 'required'];
         $validator = Validator::make(request()->all(), $rules);
         if ($validator->fails()) {
-            return response()->json([$validator->errors(),], 422);
+            return response()->json([$validator->errors()], 422);
         }
 
         return $client->verify(\request()->id);
@@ -46,8 +47,9 @@ class ShurjoPayController extends Controller
         $rules = ['id' => 'required'];
         $validator = Validator::make(request()->all(), $rules);
         if ($validator->fails()) {
-            return response()->json([$validator->errors(),], 422);
+            return response()->json([$validator->errors()], 422);
         }
+
         return $client->check(\request()->id);
     }
 }
