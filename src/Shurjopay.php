@@ -5,18 +5,25 @@ namespace Yahrdy\Shurjopay;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Request;
 
 class Shurjopay
 {
     private $successUrl;
+
     private $cancelUrl;
+
     private $serverUrl;
+
     private $merchantUsername;
+
     private $merchantPassword;
+
     private $merchantKeyPrefix;
+
     private $clientIp;
+
     private $token;
+
     private $storeId;
 
     public function __construct()
@@ -41,7 +48,7 @@ class Shurjopay
 
     private function getToken(): Response
     {
-        return Http::post($this->serverUrl . '/api/get_token', [
+        return Http::post($this->serverUrl.'/api/get_token', [
             'username' => $this->merchantUsername,
             'password' => $this->merchantPassword,
         ]);
@@ -52,7 +59,8 @@ class Shurjopay
         $tokenResponse = $this->getToken();
         $this->token = $tokenResponse['token'];
         $this->storeId = $tokenResponse['store_id'];
-        return Http::post($this->serverUrl . '/api/secret-pay', [
+
+        return Http::post($this->serverUrl.'/api/secret-pay', [
             'amount' => $amount,
             'order_id' => $orderId,
             'customer_name' => $name,
@@ -79,7 +87,8 @@ class Shurjopay
         $tokenResponse = $this->getToken();
         $this->token = $tokenResponse['token'];
         $this->storeId = $tokenResponse['store_id'];
-        return Http::withToken($this->token)->post($this->serverUrl . '/api/verification', [
+
+        return Http::withToken($this->token)->post($this->serverUrl.'/api/verification', [
             'order_id' => $id,
         ])->json();
     }
@@ -89,7 +98,8 @@ class Shurjopay
         $tokenResponse = $this->getToken();
         $this->token = $tokenResponse['token'];
         $this->storeId = $tokenResponse['store_id'];
-        return Http::withToken($this->token)->post($this->serverUrl . '/api/payment-status', [
+
+        return Http::withToken($this->token)->post($this->serverUrl.'/api/payment-status', [
             'order_id' => $id,
         ])->json();
     }
