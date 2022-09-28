@@ -71,7 +71,7 @@ class Shurjopay
             'cancel_url' => $this->cancelUrl,
             'store_id' => $this->storeId,
             'client_ip' => $this->clientIp,
-        ]);
+        ])->json();
     }
 
     public function verify($id)
