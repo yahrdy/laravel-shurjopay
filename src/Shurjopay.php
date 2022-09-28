@@ -9,65 +9,25 @@ use Illuminate\Support\Facades\Request;
 
 class Shurjopay
 {
-    protected $amount;
-
-    protected $successUrl;
-
-    protected $serverUrl;
-
-    protected $merchantUsername;
-
-    protected $merchantPassword;
-
-    protected $merchantKeyPrefix;
-
-    protected $clientIp;
-
-    protected $useCurl;
-
-    protected $responseHandler;
-
+    private $successUrl;
+    private $cancelUrl;
+    private $serverUrl;
+    private $merchantUsername;
+    private $merchantPassword;
+    private $merchantKeyPrefix;
+    private $clientIp;
     private $token;
-
     private $storeId;
 
-    public function __construct(
-        float $amount,
-        string $successUrl,
-        string $serverUrl = null,
-        string $merchantUsername = null,
-        string $merchantPassword = null,
-        string $merchantKeyPrefix = null,
-        bool $useCurl = false,
-        string $responseHandler = null
-    ) {
-        $this->amount = $amount;
-        $this->successUrl = $successUrl;
-        $this->serverUrl = $serverUrl ?? config('shurjopay.server_url');
-        $this->merchantUsername = $merchantUsername ?? config('shurjopay.merchant_username');
-        $this->merchantPassword = $merchantPassword ?? config('shurjopay.merchant_password');
-        $this->merchantKeyPrefix = $merchantKeyPrefix ?? config('shurjopay.merchant_key_prefix');
-        $this->clientIp = Request::ip();
-        $this->useCurl = $useCurl;
-        $this->responseHandler = $responseHandler;
-    }
-
-    public function initiatePayment(): Response
+    public function __construct()
     {
-        $tokenResponse = $this->getToken();
-        $this->token = $tokenResponse['token'];
-        $this->storeId = $tokenResponse['store_id'];
-
-        return $this->checkout();
-    }
-
-    public function verifyPayment(): PromiseInterface|Response
-    {
-        $tokenResponse = $this->getToken();
-        $this->token = $tokenResponse['token'];
-        $this->storeId = $tokenResponse['store_id'];
-
-        return $this->verify();
+        $this->successUrl = config('shurjopay.success_url');
+        $this->cancelUrl = config('shurjopay.cancel_url');
+        $this->serverUrl = config('shurjopay.server_url');
+        $this->merchantUsername = config('shurjopay.merchant_username');
+        $this->merchantPassword = config('shurjopay.merchant_password');
+        $this->merchantKeyPrefix = config('shurjopay.merchant_key_prefix');
+        $this->clientIp = request()->ip();
     }
 
     public function checkPayment(): PromiseInterface|Response
@@ -81,47 +41,56 @@ class Shurjopay
 
     private function getToken(): Response
     {
-        return Http::post($this->serverUrl.'/api/get_token', [
+        return Http::post($this->serverUrl . '/api/get_token', [
             'username' => $this->merchantUsername,
             'password' => $this->merchantPassword,
         ]);
-
-        return $response;
     }
 
-    private function checkout(): Response
+    public function checkout($amount, $orderId, $name, $address, $phone, $postCode = 1200, $value1 = null, $value2 = null, $value3 = null, $value4 = null): Response
     {
-        $response = Http::post($this->serverUrl.'/api/secret-pay', [
-            'prefix' => 'sp',
+        $tokenResponse = $this->getToken();
+        $this->token = $tokenResponse['token'];
+        $this->storeId = $tokenResponse['store_id'];
+        return Http::post($this->serverUrl . '/api/secret-pay', [
+            'amount' => $amount,
+            'order_id' => $orderId,
+            'customer_name' => $name,
+            'customer_address' => $address,
+            'customer_city' => $address,
+            'customer_phone' => $phone,
+            'customer_post_code' => $postCode,
+            'value1' => $value1,
+            'value2' => $value2,
+            'value3' => $value3,
+            'value4' => $value4,
+            'currency' => 'BDT',
+            'prefix' => $this->merchantKeyPrefix,
             'token' => $this->token,
-            'amount' => $this->amount,
             'return_url' => $this->successUrl,
-            'cancel_url' => $this->successUrl,
+            'cancel_url' => $this->cancelUrl,
             'store_id' => $this->storeId,
             'client_ip' => $this->clientIp,
-            'order_id' => '123456',
-            'customer_name' => 'John Doe',
-            'customer_address' => 'Dhaka',
-            'customer_phone' => '01700000000',
-            'customer_city' => 'Dhaka',
-            'customer_post_code' => '1200',
-            'currency' => 'BDT',
-        ]);
-
-        return $response;
-    }
-
-    public function verify(): PromiseInterface|Response
-    {
-        return Http::withToken($this->token)->post($this->serverUrl.'/api/verification', [
-            'order_id' => 'spay612b73a935ab1',
         ]);
     }
 
-    public function check(): PromiseInterface|Response
+    public function verify($id)
     {
-        return Http::withToken($this->token)->withToken($this->token)->post($this->serverUrl.'/api/payment-status', [
-            'order_id' => 'spay612b73a935ab1',
-        ]);
+        $tokenResponse = $this->getToken();
+        $this->token = $tokenResponse['token'];
+        $this->storeId = $tokenResponse['store_id'];
+        return Http::withToken($this->token)->post($this->serverUrl . '/api/verification', [
+            'order_id' => $id,
+        ])->json();
+    }
+
+    public function check($id)
+    {
+        $tokenResponse = $this->getToken();
+        $this->token = $tokenResponse['token'];
+        $this->storeId = $tokenResponse['store_id'];
+        return Http::withToken($this->token)->post($this->serverUrl . '/api/payment-status', [
+            'order_id' => $id,
+        ])->json();
     }
 }

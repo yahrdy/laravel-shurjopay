@@ -2,65 +2,52 @@
 
 namespace Yahrdy\Shurjopay\Http\Controllers;
 
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Validator;
 use Yahrdy\Shurjopay\Shurjopay;
 
 class ShurjoPayController extends Controller
 {
-    public function initiatePayment()
+    public function initiate(Request $request)
     {
-        $client = new Shurjopay(500, route('shurjopay.response'));
-
-        return $client->initiatePayment();
+        $ruels = [
+            'amount' => 'required|numeric',
+            'order_id' => 'required|integer',
+            'name' => 'required|string',
+            'address' => 'required|string',
+            'phone' => 'required|string|regex:/^(\+88)?(01)[0-9]{9}$/',
+        ];
+        $validator = Validator::make($request->all(), $ruels);
+        if ($validator->fails()) {
+            return response()->json([$validator->errors(),], 422);
+        }
+        $client = new Shurjopay();
+        return $client
+            ->checkout($request->amount, $request->order_id, $request->name, $request->address, $request->phone, $request->post_code, $request->value1, $request->value2, $request->value3, $request->value4)
+            ->json();
     }
 
-    /**
-     * Handle a response coming from ShurjoPay server
-     * after a successful or failed transaction.
-     *
-     * @param  Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     *
-     * @throws \Exception|GuzzleException
-     */
-    public function response(Request $request)
+    public function verify()
     {
-        $data = Shurjopay::decryptResponse($request->spdata);
-        $txnId = $data->txID;
-        $bankTxnId = $data->bankTxID;
-        $amount = $data->txnAmount;
-        $bankStatus = $data->bankTxStatus;
-        $resCode = $data->spCode;
-        $resCodeDescription = $data->spCodeDes;
-        $paymentOption = $data->paymentOption;
-        $res = [];
-
-        switch ($resCode) {
-            case '000':
-                $status = 'Success';
-                $res['message'] = 'Transaction attempt successful';
-                break;
-            default:
-                $status = 'Failed';
-                $res['message'] = 'Transaction attempt failed';
-                break;
+        $client = new Shurjopay();
+        $rules = ['id' => 'required'];
+        $validator = Validator::make(request()->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([$validator->errors(),], 422);
         }
 
-        $redirectUrl = $request->get('success_url').
-            "?status={$status}&msg={$res['message']}".
-            "&tx_id={$txnId}&bank_tx_id={$bankTxnId}".
-            "&amount={$amount}&bank_status={$bankStatus}&sp_code={$resCode}".
-            "&sp_code_des={$resCodeDescription}&sp_payment_option={$paymentOption}";
-
-        return redirect($redirectUrl);
+        return $client->verify(\request()->id);
     }
 
-    public function verifyPayment()
+    public function check()
     {
-        $client = new Shurjopay(500, route('shurjopay.response'));
-
-        return $client->verifyPayment();
+        $client = new Shurjopay();
+        $rules = ['id' => 'required'];
+        $validator = Validator::make(request()->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([$validator->errors(),], 422);
+        }
+        return $client->check(\request()->id);
     }
 }
