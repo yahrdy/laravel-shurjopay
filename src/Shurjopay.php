@@ -54,7 +54,7 @@ class Shurjopay
         ]);
     }
 
-    public function checkout($amount, $orderId, $name, $address, $phone, $postCode = 1200, $value1 = null, $value2 = null, $value3 = null, $value4 = null): Response
+    public function checkout($amount, $orderId, $name, $address, $phone, $postCode = 1200, $value1 = null, $value2 = null, $value3 = null, $value4 = null)
     {
         $tokenResponse = $this->getToken();
         $this->token = $tokenResponse['token'];
