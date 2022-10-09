@@ -4,7 +4,6 @@ namespace Yahrdy\Shurjopay;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Yahrdy\Shurjopay\Commands\ShurjopayCommand;
 
 class ShurjopayServiceProvider extends PackageServiceProvider
 {
